@@ -69,18 +69,18 @@ export function DriverApp({ framed }: { framed: boolean }) {
           </Button>
         )}
         <button onClick={() => { setCode(null); setModal(true); }} className="w-full rounded-lg border border-border p-3 text-xs text-muted-foreground hover:bg-card">
-          <AlertTriangle className="mr-1 inline h-3.5 w-3.5 text-warning" />¿Problemas de lectura o emergencia? Solicitar arranque por contingencia
+          <AlertTriangle className="mr-1 inline h-3.5 w-3.5 text-warning" />¿Problemas de lectura o emergencia? Solicitar Token de Contingencia (1 uso)
         </button>
       </div>
 
       <Dialog open={modal} onOpenChange={setModal}>
         <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle>Arranque por contingencia</DialogTitle><DialogDescription>Selecciona el motivo. La solicitud queda registrada y trazable.</DialogDescription></DialogHeader>
+          <DialogHeader><DialogTitle>Token de Contingencia (1 uso)</DialogTitle><DialogDescription>Selecciona el motivo. El respaldo queda registrado y requiere autorización trazable del supervisor.</DialogDescription></DialogHeader>
           {code ? (
             <div className="animate-pop rounded-lg bg-muted p-4 text-center">
-              <p className="text-xs text-muted-foreground">Código temporal trazable</p>
+              <p className="text-xs text-muted-foreground">Token de Contingencia (1 uso)</p>
               <p className="text-3xl font-extrabold tracking-widest text-brand">{code}</p>
-              <p className="mt-2 text-sm">Acción registrada en el panel central. Espera la autorización remota del jefe de flota.</p>
+              <p className="mt-2 text-sm">Acción registrada en el panel central. Espera la autorización remota del supervisor.</p>
               <Button className="mt-4 w-full" onClick={() => setModal(false)}>Entendido</Button>
             </div>
           ) : (

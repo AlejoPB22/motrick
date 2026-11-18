@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Activity, AlertTriangle, Calculator, CheckCircle2, Lock, LockOpen, PanelLeftClose, PanelLeftOpen, Plus, ShieldAlert, Truck, Users, Wrench, Check } from "lucide-react";
+import { Activity, AlertTriangle, CheckCircle2, Lock, LockOpen, PanelLeftClose, PanelLeftOpen, Plus, ShieldAlert, Truck, Users, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -7,10 +7,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Logo } from "./Logo";
 import { useMotrick, type AlertLevel } from "./store";
 
-type Tab = "monitor" | "quote" | "fleet";
+type Tab = "monitor" | "fleet";
 const tabs = [
   { id: "monitor" as Tab, label: "Monitoreo y Alertas", icon: Activity },
-  { id: "quote" as Tab, label: "Cotizador y Modalidades", icon: Calculator },
   { id: "fleet" as Tab, label: "Flota y Conductores", icon: Truck },
 ];
 
@@ -38,7 +37,6 @@ export function WebPanel() {
       </aside>
       <main className="flex-1 overflow-x-auto p-6 lg:p-8">
         {tab === "monitor" && <Monitor />}
-        {tab === "quote" && <Quote />}
         {tab === "fleet" && <Fleet />}
       </main>
     </div>
@@ -60,7 +58,7 @@ function Monitor() {
     { label: "Vehículos Activos", value: "18/20", icon: Truck, tone: "text-brand" },
     { label: "Autenticaciones Exitosas Hoy", value: "42", icon: CheckCircle2, tone: "text-success" },
     { label: "Intentos Bloqueados", value: String(alerts.filter((a) => a.level === "red").length + 2), icon: Lock, tone: "text-destructive" },
-    { label: "Excepciones por Contingencia", value: String(exceptions), icon: AlertTriangle, tone: "text-warning" },
+    { label: "Tokens de Contingencia (1 uso)", value: String(exceptions), icon: AlertTriangle, tone: "text-warning" },
   ];
   return (
     <div className="space-y-6">
@@ -90,7 +88,7 @@ function Monitor() {
                     <div className="flex-1">
                       <div className="flex justify-between gap-2"><p className="text-sm font-semibold">{a.title}</p><span className="text-xs text-muted-foreground">{a.time}</span></div>
                       <p className="text-xs text-muted-foreground">{a.detail}</p>
-                      {a.pending && <Button size="sm" variant="outline" className="mt-2 h-7" onClick={() => authorize(a.id)}>Autorizar Excepción Remota</Button>}
+                      {a.pending && <Button size="sm" variant="outline" className="mt-2 h-7" onClick={() => authorize(a.id)}>Autorizar Token de Contingencia</Button>}
                       {a.authorized && <Badge className="mt-2 bg-success text-success-foreground"><Check className="h-3 w-3" />Autorizado</Badge>}
                     </div>
                   </div>
@@ -109,7 +107,14 @@ function Monitor() {
               {logs.map((l, i) => (
                 <TableRow key={i} className="animate-alert-in">
                   <TableCell className="font-semibold">{l.vehicle}</TableCell><TableCell>{l.config}</TableCell><TableCell>{l.driver}</TableCell><TableCell>{l.time}</TableCell>
-                  <TableCell><Badge variant="secondary">{l.method}</Badge></TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={l.method === "Biometría" ? "secondary" : "outline"}
+                      className={l.method === "Biometría" ? "whitespace-nowrap" : "whitespace-nowrap border-warning/40 bg-warning/15 text-warning-foreground"}
+                    >
+                      {l.method}
+                    </Badge>
+                  </TableCell>
                   <TableCell>{l.status === "Desbloqueado"
                     ? <span className="inline-flex items-center gap-1 text-sm font-medium text-success"><LockOpen className="h-4 w-4" />Desbloqueado</span>
                     : <span className="inline-flex items-center gap-1 text-sm font-medium text-destructive"><Lock className="h-4 w-4" />Bloqueado</span>}</TableCell>
@@ -125,52 +130,6 @@ function Monitor() {
 
 function Header({ title, sub }: { title: string; sub: string }) {
   return <div><h1 className="text-2xl font-extrabold tracking-tight">{title}</h1><p className="text-muted-foreground">{sub}</p></div>;
-}
-
-const compat = {
-  "Tractocamión": { time: "3 a 4 horas", note: "Instalación sobre arnés de arranque con conector no invasivo." },
-  "Camión Rígido": { time: "2 a 3 horas", note: "Módulo en tablero con interruptor de bloqueo reversible." },
-  "Utilitario": { time: "1 a 1,5 horas", note: "Kit compacto plug-and-play en puerto de encendido." },
-};
-
-function Quote() {
-  const [v, setV] = useState<keyof typeof compat>("Tractocamión");
-  const plans = [
-    { name: "Suscripción Mensual con Hardware en Comodato", price: "$189.000", unit: "COP / vehículo / mes", featured: true,
-      items: ["Equipo sin costo inicial", "Instalación certificada en patio incluida", "Soporte técnico 24/7", "Gobierno de datos", "Panel web + alertas móviles"] },
-    { name: "Compra Directa de Hardware + Licencia", price: "$1.450.000", unit: "COP pago único / dispositivo + $79.000/mes plataforma", featured: false,
-      items: ["Pago único por dispositivo", "Garantía técnica extendida (24 meses)", "Instalación explícita incluida en el precio", "Mensualidad reducida de plataforma", "Soporte en horario laboral"] },
-  ];
-  return (
-    <div className="space-y-6">
-      <Header title="Cotizador y Modalidades" sub="Precios transparentes: instalación y soporte siempre incluidos" />
-      <div className="grid gap-6 lg:grid-cols-2">
-        {plans.map((p) => (
-          <Card key={p.name} className={`relative p-6 ${p.featured ? "border-2 border-brand shadow-lg" : ""}`}>
-            {p.featured && <Badge className="absolute -top-3 left-6 bg-brand text-brand-foreground">Preferida por el 50% de flotas</Badge>}
-            <h3 className="text-lg font-bold">{p.name}</h3>
-            <p className="mt-4 text-4xl font-extrabold">{p.price}</p>
-            <p className="text-sm text-muted-foreground">{p.unit}</p>
-            <ul className="mt-5 space-y-2">{p.items.map((i) => <li key={i} className="flex gap-2 text-sm"><Check className="h-4 w-4 text-success" />{i}</li>)}</ul>
-            <Button className={`mt-6 w-full ${p.featured ? "bg-brand text-brand-foreground hover:bg-brand/90" : ""}`} variant={p.featured ? "default" : "outline"}>Solicitar cotización</Button>
-          </Card>
-        ))}
-      </div>
-      <Card className="p-6">
-        <h3 className="flex items-center gap-2 font-bold"><Wrench className="h-5 w-5 text-brand" />Compatibilidad por Configuración Vehicular</h3>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {(Object.keys(compat) as (keyof typeof compat)[]).map((k) => (
-            <Button key={k} variant={v === k ? "default" : "outline"} onClick={() => setV(k)}>{k}</Button>
-          ))}
-        </div>
-        <div key={v} className="animate-pop mt-5 grid gap-4 rounded-lg bg-muted p-4 sm:grid-cols-3">
-          <div><p className="text-xs text-muted-foreground">Tiempo estimado de instalación</p><p className="text-xl font-bold">{compat[v].time}</p></div>
-          <div><p className="text-xs text-muted-foreground">Garantía del vehículo</p><p className="flex items-center gap-1 font-bold text-success"><CheckCircle2 className="h-4 w-4" />No se afecta</p></div>
-          <div><p className="text-xs text-muted-foreground">Método</p><p className="text-sm">{compat[v].note}</p></div>
-        </div>
-      </Card>
-    </div>
-  );
 }
 
 const fleet = [
