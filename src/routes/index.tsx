@@ -1,23 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { MotrickDemo } from "@/components/motrick/MotrickDemo";
 
-// The home route ships no og:image, so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
-  component: Index,
+  head: () => ({
+    meta: [
+      { title: "Motrick · Autenticación vehicular previa al arranque" },
+      { name: "description", content: "Prototipo Motrick: panel de alertas y telemetría para flotas y app de autenticación del conductor en Cartagena." },
+      { property: "og:title", content: "Motrick · Autenticación vehicular previa al arranque" },
+      { property: "og:description", content: "Panel de flota y app del conductor para bloquear arranques no autorizados." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
+  component: MotrickDemo,
 });
-
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
