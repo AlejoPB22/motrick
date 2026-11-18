@@ -19,6 +19,7 @@ export function DriverApp({ framed }: { framed: boolean }) {
   useEffect(() => {
     if (phase === "verifying") { const t = setTimeout(() => { setPhase("ok"); setSecs(120); }, 2000); return () => clearTimeout(t); }
     if (phase === "ok") { const t = setInterval(() => setSecs((s) => (s > 0 ? s - 1 : 0)), 1000); return () => clearInterval(t); }
+    return undefined;
   }, [phase]);
 
   const request = (r: string) => {
